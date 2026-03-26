@@ -484,17 +484,28 @@ def find_emails(domain):
 
     return results
 
-def generate_email_template(company):
-    subject = f"Quick question about {company}"
+def generate_email_template(company, name=""):
+    subject = f"Exploring Opportunities to Support {company}'s Operational Efficiency"
 
     body = (
-        f"Hi,\n\n"
-        f"I wanted to reach out to see if {company} works with external development partners for web or software development.\n\n"
-        f"My team helps companies with web development, CRM systems and custom software.\n\n"
-        f"If this is relevant, I’d love to connect for a quick discussion.\n\n"
+        f"Hi {name if name else ''},\n\n"
+        f"I hope you’re doing well.\n\n"
+        f"I came across your profile and was impressed by your experience in driving operational efficiency and optimizing business processes within your organization.\n\n"
+        f"Your approach to improving workflows and building scalable systems aligns closely with the kind of challenges we help solve.\n\n"
+        f"I’m reaching out from IcebergTech. We offer end-to-end IT services and solutions focused on:\n\n"
+        f"- Custom software development\n"
+        f"- Workflow automation\n"
+        f"- Data-driven decision support\n"
+        f"- Mobile and web application development\n"
+        f"- System integration and process optimization\n\n"
+        f"Our solutions are designed to help organizations streamline operations, improve efficiency, and build scalable systems for long-term growth.\n\n"
+        f"I would be glad to connect and understand your current requirements to explore how we can support your initiatives. "
+        f"Please let me know a convenient time to connect.\n\n"
+        f"Looking forward to your response.\n\n"
         f"Best regards,\n"
         f"Lingesh\n"
-        f"Icebergs Tech"
+        f"IcebergTech\n"
+        f"Your Number"
     )
 
     return subject, body
