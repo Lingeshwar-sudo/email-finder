@@ -356,61 +356,101 @@ import base64
 
 HUNTER_API_KEY = "e7f6461d322b8decb7307d59abe4cbc5b7a627e1"
 
-# -------- Background Image --------
-def add_bg_from_local():
-    with open("https://raw.githubusercontent.com/Lingeshwar-sudo/email-finder/main/Email_Extraction/bg_photo.jpeg", "rb") as image_file:
-        encoded = base64.b64encode(image_file.read()).decode()
+# # -------- Background Image --------
+# def add_bg_from_local():
+#     with open("https://raw.githubusercontent.com/Lingeshwar-sudo/email-finder/main/Email_Extraction/bg_photo.jpeg", "rb") as image_file:
+#         encoded = base64.b64encode(image_file.read()).decode()
+
+#     st.markdown(
+#         f"""
+#         <style>
+#         .stApp {{
+#             background: url("data:image/jpg;base64,{encoded}");
+#             background-size: cover;
+#             background-attachment: fixed;
+#         }}
+
+#         h1, h2, h3, h4, h5, h6, p, label {{
+#             color: white !important;
+#         }}
+
+#         .card {{
+#             background-color: rgba(0,0,0,0.65);
+#             padding: 20px;
+#             border-radius: 15px;
+#             margin-bottom: 15px;
+#             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+#         }}
+
+#         .email-text {{
+#             font-size: 18px;
+#             font-weight: bold;
+#             color: #00FFCC;
+#         }}
+
+#         .role-text {{
+#             font-size: 15px;
+#             color: #FFD700;
+#         }}
+
+#         .stButton>button {{
+#             background-color: #00C9A7;
+#             color: white;
+#             border-radius: 10px;
+#             height: 2.5em;
+#             width: 200px;
+#             font-size: 16px;
+#         }}
+
+#         .stTextInput>div>div>input {{
+#             background-color: rgba(255,255,255,0.9);
+#         }}
+#         </style>
+#         """,
+#         unsafe_allow_html=True
+#     )
+
+# add_bg_from_local()
+
+def add_bg_from_url():
+    bg_url = "https://raw.githubusercontent.com/Lingeshwar-sudo/email-finder/main/Email_Extraction/bg_photo.jpeg"
 
     st.markdown(
         f"""
         <style>
         .stApp {{
-            background: url("data:image/jpg;base64,{encoded}");
+            background-image: url("{bg_url}");
             background-size: cover;
             background-attachment: fixed;
-        }}
-
-        h1, h2, h3, h4, h5, h6, p, label {{
-            color: white !important;
+            background-position: center;
         }}
 
         .card {{
-            background-color: rgba(0,0,0,0.65);
+            background-color: rgba(0,0,0,0.6);
             padding: 20px;
             border-radius: 15px;
             margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }}
-
-        .email-text {{
-            font-size: 18px;
-            font-weight: bold;
-            color: #00FFCC;
-        }}
-
-        .role-text {{
-            font-size: 15px;
-            color: #FFD700;
-        }}
-
-        .stButton>button {{
-            background-color: #00C9A7;
             color: white;
-            border-radius: 10px;
-            height: 2.5em;
-            width: 200px;
-            font-size: 16px;
         }}
 
         .stTextInput>div>div>input {{
             background-color: rgba(255,255,255,0.9);
         }}
+
+        .stButton>button {{
+            background-color: #ff4b4b;
+            color: white;
+            border-radius: 10px;
+            height: 3em;
+            width: 100%;
+        }}
         </style>
         """,
         unsafe_allow_html=True
     )
+    
+add_bg_from_url()
 
-add_bg_from_local()
 
 # -------- Functions --------
 def get_company_domain(linkedin_url):
