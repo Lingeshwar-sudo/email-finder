@@ -356,110 +356,89 @@ import base64
 
 HUNTER_API_KEY = "e7f6461d322b8decb7307d59abe4cbc5b7a627e1"
 
-# # -------- Background Image --------
-# def add_bg_from_local():
-#     with open("https://raw.githubusercontent.com/Lingeshwar-sudo/email-finder/main/Email_Extraction/bg_photo.jpeg", "rb") as image_file:
-#         encoded = base64.b64encode(image_file.read()).decode()
-
-#     st.markdown(
-#         f"""
-#         <style>
-#         .stApp {{
-#             background: url("data:image/jpg;base64,{encoded}");
-#             background-size: cover;
-#             background-attachment: fixed;
-#         }}
-
-#         h1, h2, h3, h4, h5, h6, p, label {{
-#             color: white !important;
-#         }}
-
-#         .card {{
-#             background-color: rgba(0,0,0,0.65);
-#             padding: 20px;
-#             border-radius: 15px;
-#             margin-bottom: 15px;
-#             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-#         }}
-
-#         .email-text {{
-#             font-size: 18px;
-#             font-weight: bold;
-#             color: #00FFCC;
-#         }}
-
-#         .role-text {{
-#             font-size: 15px;
-#             color: #FFD700;
-#         }}
-
-#         .stButton>button {{
-#             background-color: #00C9A7;
-#             color: white;
-#             border-radius: 10px;
-#             height: 2.5em;
-#             width: 200px;
-#             font-size: 16px;
-#         }}
-
-#         .stTextInput>div>div>input {{
-#             background-color: rgba(255,255,255,0.9);
-#         }}
-#         </style>
-#         """,
-#         unsafe_allow_html=True
-#     )
-
-# add_bg_from_local()
-
-def add_bg_from_url():
-    bg_url = "https://raw.githubusercontent.com/Lingeshwar-sudo/email-finder/main/Email_Extraction/bg_photo.jpeg"
+# -------- Background Image --------
+def add_bg_from_local():
+    with open("bg_photo.jpeg", "rb") as image_file:
+        encoded = base64.b64encode(image_file.read()).decode()
 
     st.markdown(
         f"""
         <style>
         .stApp {{
-            background-image: url("{bg_url}");
+            background: url("data:image/jpg;base64,{encoded}");
             background-size: cover;
             background-attachment: fixed;
-            background-position: center;
+        }}
+
+        h1, h2, h3, h4, h5, h6, p, label {{
+            color: white !important;
         }}
 
         .card {{
-            background-color: rgba(0,0,0,0.6);
+            background-color: rgba(0,0,0,0.65);
             padding: 20px;
             border-radius: 15px;
             margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }}
+
+        .email-text {{
+            font-size: 18px;
+            font-weight: bold;
+            color: #00FFCC;
+        }}
+
+        .role-text {{
+            font-size: 15px;
+            color: #FFD700;
+        }}
+
+        .stButton>button {{
+            background-color: #00C9A7;
             color: white;
+            border-radius: 10px;
+            height: 2.5em;
+            width: 200px;
+            font-size: 16px;
         }}
 
         .stTextInput>div>div>input {{
             background-color: rgba(255,255,255,0.9);
         }}
-
-        .stButton>button {{
-            background-color: #ff4b4b;
-            color: white;
-            border-radius: 10px;
-            height: 3em;
-            width: 100%;
-        }}
         </style>
         """,
         unsafe_allow_html=True
     )
-    
-add_bg_from_url()
 
+add_bg_from_local()
 
 # -------- Functions --------
-def get_company_domain(linkedin_url):
+def get_company_domain(website_url):
     try:
-        name = re.search(r'company/([^/]+)', linkedin_url).group(1)
-        name = name.replace('-', '')
-        return name + ".com"
+        website_url = website_url.replace("https://", "").replace("http://", "").replace("www.", "")
+        domain = website_url.split("/")[0]
+        return domain
     except:
         return None
+
+# -------- Fallback: Scrape emails from website --------
+def scrape_emails_from_website(domain):
+    emails = set()
+    try:
+        url = f"http://{domain}"
+        response = requests.get(url, timeout=5)
+        matches = re.findall(r"[A-Za-z0-9._%+-]+@" + re.escape(domain), response.text)
+        for email in matches:
+            emails.add(email)
+    except:
+        pass
+    return list(emails)
+
+
+# -------- Fallback: Generate common emails --------
+def generate_common_emails(domain):
+    prefixes = ["info", "contact", "hello", "sales", "support", "admin", "careers"]
+    return [f"{prefix}@{domain}" for prefix in prefixes]
 
 def find_emails(domain):
     url = "https://api.hunter.io/v2/domain-search"
@@ -469,9 +448,9 @@ def find_emails(domain):
     }
 
     response = requests.get(url, params=params)
-
     results = []
 
+    # -------- Hunter Emails --------
     if response.status_code == 200:
         data = response.json()["data"]["emails"]
         for email in data:
@@ -480,6 +459,27 @@ def find_emails(domain):
                 "name": (email.get("first_name", "") + " " + email.get("last_name", "")).strip(),
                 "role": email.get("position", "Not Available"),
                 "linkedin": email.get("linkedin", "")
+            })
+
+    # -------- If Hunter fails, use fallback --------
+    if not results:
+        scraped_emails = scrape_emails_from_website(domain)
+        common_emails = generate_common_emails(domain)
+
+        for email in scraped_emails:
+            results.append({
+                "email": email,
+                "name": "",
+                "role": "From Website",
+                "linkedin": ""
+            })
+
+        for email in common_emails:
+            results.append({
+                "email": email,
+                "name": "",
+                "role": "Common Email",
+                "linkedin": ""
             })
 
     return results
@@ -509,11 +509,10 @@ def generate_email_template(company, name=""):
     )
 
     return subject, body
-
 # -------- UI --------
-st.title("Foreign Client Email Finder")
+st.title("Client Email Finder")
 
-url = st.text_input("Enter LinkedIn Company URL")
+url = st.text_input("Enter Company website URL")
 
 if st.button("Find Emails"):
     if url:
@@ -532,7 +531,7 @@ if st.button("Find Emails"):
                     role = person["role"]
                     linkedin = person["linkedin"]
 
-                    subject, body = generate_email_template(domain)
+                    subject, body = generate_email_template(domain, name)
 
                     subject_encoded = urllib.parse.quote(subject)
                     body_encoded = urllib.parse.quote(body)
@@ -556,18 +555,18 @@ if st.button("Find Emails"):
             else:
                 st.error("No emails found.")
         else:
-            st.error("Invalid LinkedIn URL")
+            st.error("Invalid Company URL")
 
 # -------- CSV Upload --------
 st.subheader("Upload CSV")
-uploaded_file = st.file_uploader("Upload CSV with LinkedIn URLs", type=["csv"])
+uploaded_file = st.file_uploader("Upload CSV with Company's Website URLs", type=["csv"])
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
     results = []
     
     for index, row in df.iterrows():
-        domain = get_company_domain(row["linkedin_url"])
+        domain = get_company_domain(row["website_url"])
         if domain:
             people = find_emails(domain)
             for person in people:
