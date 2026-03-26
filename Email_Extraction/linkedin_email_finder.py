@@ -358,7 +358,7 @@ HUNTER_API_KEY = "e7f6461d322b8decb7307d59abe4cbc5b7a627e1"
 
 # -------- Background Image --------
 def add_bg_from_local():
-    with open("bg_photo.jpeg", "rb") as image_file:
+    with open("https://github.com/Lingeshwar-sudo/email-finder/blob/main/Email_Extraction/bg_photo.jpeg", "rb") as image_file:
         encoded = base64.b64encode(image_file.read()).decode()
 
     st.markdown(
